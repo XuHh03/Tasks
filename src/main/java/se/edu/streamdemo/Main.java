@@ -6,6 +6,8 @@ import se.edu.streamdemo.task.Task;
 
 import java.util.ArrayList;
 
+import static java.util.stream.Collectors.toList;
+
 public class Main {
     public static void main(String[] args) {
         System.out.println("Welcome to Task manager (using streams)");
@@ -20,10 +22,13 @@ public class Main {
         System.out.println("Printing deadlines ...");
         printDeadlines(tasksData);
 
-        printDeadlinesUsingStreams(tasksData);
+        printDeadlinesUsingStream(tasksData);
 
         System.out.println("Total number of deadlines: " + countDeadlines(tasksData));
         System.out.println("Total number of deadlines (using streams): " + countDeadlinesUsingStreams(tasksData));
+
+        ArrayList<Task> filteredList = filterByStringUsingStream(tasksData, "11");
+        printAllData(filteredList);
 
     }
 
@@ -59,6 +64,7 @@ public class Main {
     }
 
     public static void printDeadlines(ArrayList<Task> tasksData) {
+        System.out.println("Printing deadlines using iteration ...");
         for (Task t : tasksData) {
             if (t instanceof Deadline) {
                 System.out.println(t);
@@ -66,11 +72,29 @@ public class Main {
         }
     }
 
-    public static void printDeadlinesUsingStreams(ArrayList<Task> tasks) {
-        System.out.println("Printing data using streams ...");
-        tasks.stream()  //creating a stream
-                .filter(t -> t instanceof Deadline) //lambda to filter
-                .forEach(System.out::println);  //terminal operation
+    public static void printDeadlinesUsingStream(ArrayList<Task> tasks) {
+        System.out.println("Printing deadlines using stream...");
+        tasks.stream()
+                .filter((t) -> t instanceof Deadline)
+                .sorted((t1, t2) -> t1.getDescription().compareToIgnoreCase(t2.getDescription()))
+                .forEach(System.out::println);
+    }
+
+    public static ArrayList<Task> filterByString(ArrayList<Task> tasks, String filterStr) {
+        ArrayList<Task> filteredList = new ArrayList<>();
+        for (Task t : tasks) {
+            if (t.getDescription().contains(filterStr)) {
+                filteredList.add(t);
+            }
+        }
+        return filteredList;
+    }
+
+    public static ArrayList<Task> filterByStringUsingStream(ArrayList<Task> tasks, String filterStr) {
+        ArrayList<Task> filteredList = (ArrayList<Task>) tasks.stream()
+                .filter((t) -> t.getDescription().contains(filterStr))
+                .collect(toList());
+        return filteredList;
     }
 
 }
